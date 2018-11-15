@@ -71,16 +71,16 @@ print('accepting from {}'.format(address))
 #Let us read 5 bytes record header from client    
 data = clientsocket.recv(5)
 
-print('Read 5 bytes: {}'.format(data))
+print('Read 5 bytes: {}'.format(data.hex()))
 # byte 0 should be 16 - handshake record
 if data[0:1] != b'\x16':
-    print('ERROR: Byte 0 of handshake is not 0x16: {}'.format(data[0]))
+    print('ERROR: Byte 0 of handshake is not 0x16: {}'.format(data[0].hex()))
     raise('TLS handshake problem')
 
 print('Byte 0 is 0x16: This is a TLS handshake record')
 tls_version = (data[1:3])
 tls_translated_version = tls_version_lookup[tls_version]
-print('TLS version {} or {}'.format(tls_version, tls_translated_version))
+print('TLS version {} or {}'.format(tls_version.hex(), tls_translated_version))
 record_payload_length = data[3] * 256 + data[4]    
 print('Record payload length: {}'.format(record_payload_length))
 
@@ -90,16 +90,16 @@ data = clientsocket.recv(record_payload_length)
 print('Read {} bytes'.format(record_payload_length))
 #print('record payload: {}'.format(data))
 handshake_header=data[0:4]
-print('Handshake header: {}'.format(handshake_header))
+print('Handshake header: {}'.format(handshake_header.hex()))
 print('This is a {}.'.format(handshake_message_type[data[0:1]]))
 handshake_payload_length = data[1]*65536 + data[2]*256 + data[3]
 print('Handshake payload length is: {}'.format(handshake_payload_length)) 
 if handshake_payload_length > record_payload_length - 4:
     print('Handshake payload length exceeds record payload length!')
 handshake_client_version = tls_version = (data[4:6])    
-print('Handshake client version: {} or {}'.format(handshake_client_version, tls_version_lookup[handshake_client_version]))
+print('Handshake client version: {} or {}'.format(handshake_client_version.hex(), tls_version_lookup[handshake_client_version]))
 client_random = data[6:38]
-print('32 Client random bytes {}'.format(client_random))
+print('32 Client random bytes {}'.format(client_random.hex()))
 print('Are the first 4 bytes a current timestamp (in spec but not recommended)?')
 seconds = data[6] * 16777216 + data[7]*65536 + data[8]*256 + data[9]
 ts = datetime.datetime.fromtimestamp(seconds).strftime('%Y-%m-%d %H:%M:%S')
@@ -119,14 +119,14 @@ pointer = pointer + 2
 print('Cipher Suite length:{}'.format(cipher_suite_length))
 ciphers=data[pointer:pointer+cipher_suite_length]
 pointer = pointer + cipher_suite_length
-print('Cipher Suite list: {}'.format(ciphers))
+print('Cipher Suite list: {}'.format(ciphers.hex()))
 for i in range(0, len(ciphers), 2):
     cipher = ciphers[i:i+2]
     if cipher in cipher_suites:
         cipher_name = cipher_suites[cipher]
     else:
         cipher_name = 'unknown'
-    print('Cipher ID: {}, Cipher Suite name: {}'.format(cipher, cipher_name))
+    print('Cipher ID: {}, Cipher Suite name: {}'.format(cipher.hex(), cipher_name))
 
 bytes_compression_methods = data[pointer]
 pointer = pointer + 1
